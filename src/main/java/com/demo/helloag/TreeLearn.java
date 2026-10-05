@@ -49,7 +49,8 @@ public class TreeLearn {
         queue.offer(root);
 
         while (!queue.isEmpty()) {
-            for (int i = 0; i < queue.size(); ++i) {
+            int size = queue.size();
+            for (int i = 0; i < size; ++i) {
                 TreeNode node = queue.poll();
                 System.out.print(node.val + " ");
                 if (node.left != null) {
@@ -59,8 +60,8 @@ public class TreeLearn {
                     queue.offer(node.right);
                 }
             }
+            System.out.println();
         }
-        System.out.println();
     }
 
     public static void main(String[] args) {
@@ -70,16 +71,6 @@ public class TreeLearn {
         TreeNode root = build(vals);
         layorTraverse(root);
         sc.close();
-    }
-}
-
-class TreeNode {
-    TreeNode left;
-    TreeNode right;
-    int val;
-
-    public TreeNode(int val) {
-        this.val = val;
     }
 }
 
