@@ -141,4 +141,61 @@ public class BackTraceLearn {
             path.remove(path.size() - 1);
         }
     }
+
+    public static List<List<List<String>>> nQueues(int n) {
+        // 1. init board
+        List<List<String>> board = new ArrayList<>();
+        for (int i = 0; i < n; ++i) {
+            List<String> row = new ArrayList<>();
+            for (int j = 0; j < n; ++j) 
+                row.add("#");
+            board.add(row);
+        }
+
+        // 2. records
+        boolean[] cols = new boolean[n];
+        boolean[] diags1 = new boolean[2 * n - 1]; // 主对角线上是否有元素
+        boolean[] diags2 = new boolean[2 * n - 1]; // 次对角线上是否有元素, -n + 1 ~ n - 1
+
+        // 3. backtrace
+        List<List<List<String>>> res = new ArrayList<>();
+        nQueuesBackTrack(board, res, 0, cols, diags1, diags2);
+        return res;
+    }
+
+    private static void nQueuesBackTrack(List<List<String>> board, List<List<List<String>>> res, int row, boolean[] cols, boolean[] diags1, boolean[] diags2) {
+        int n = board.size();
+        if (row == n) { // 此时找到一个解
+            // 拷贝board到res 
+            List<List<String>> copy = new ArrayList<>();
+            for (List<String> r : board) 
+                copy.add(new ArrayList<>(r));
+            res.add(copy);
+            return;
+        }
+
+        for (int i = 0; i < n; ++i) {
+            /*
+                令y = col, x = row
+                1. cols 不能在同一列 
+                2. 不能在同一主对角线 y + x 恒定
+                3. 不能在同一次对角线 y - x恒定 映射需要 + (n - 1)
+             */
+            if (cols[i] || diags1[row + i] || diags2[i - row + n - 1])
+                continue;
+
+            // 尝试
+            board.get(row).set(i, "Q");
+            cols[i] = true;
+            diags1[row + i] = true;
+            diags2[i - row + n - 1] = true;
+
+            nQueuesBackTrack(board, res, row + 1, cols, diags1, diags2);
+            // clean environment
+            board.get(row).set(i, "#");
+            cols[i] = false;
+            diags1[row + i] = false;
+            diags2[i - row + n - 1] = false;
+        }
+    }
 }

@@ -61,4 +61,17 @@ public class BackTraceTest {
             System.out.println();
         });
     }
+
+    @Test
+    public void TestNQueues() {
+        int n = 5;
+        List<List<List<String>>> res = BackTraceLearn.nQueues(n);
+        res.forEach(board -> {
+            board.forEach(row -> {
+                row.forEach(System.out::print);
+                System.out.println();
+            });
+            System.out.println();
+        });
+    }
 }
