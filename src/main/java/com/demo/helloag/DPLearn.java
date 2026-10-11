@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.hutool.core.lang.Assert;
+
 public class DPLearn {
     public static List<List<Integer>> climingStairs(int n) {
         List<List<Integer>> res = new ArrayList<>();
@@ -161,10 +163,10 @@ public class DPLearn {
     }
 
     /*
-        1. n: 一共多少级台阶；
-        2. traverse：层数是否可以遍历;
-        3. layor：当前所处层级。
-    */
+     * 1. n: 一共多少级台阶；
+     * 2. traverse：层数是否可以遍历;
+     * 3. layor：当前所处层级。
+     */
     public static int barrierDfs(int n, boolean[] traverse, int layor) {
         if (layor == n) {
             return 1;
@@ -187,5 +189,163 @@ public class DPLearn {
             traverse[next * 2] = true;
         }
         return cnt;
+    }
+
+    // 最小路径和
+    public static int minPathSumDFS(int[][] grid) {
+        int n = grid.length, m = grid[0].length;
+        int[][] mem = new int[n][m];
+        for (int[] row : mem) {
+            Arrays.fill(row, -1);
+        }
+        return dfs(grid, n - 1, m - 1, n, m, mem);
+    }
+
+    public static int dfs(int[][] grid, int i, int j, int n, int m, int[][] mem) {
+        if (i == 0 && j == 0) {
+            return grid[0][0];
+        }
+
+        if (i < 0 || j < 0) {
+            return Integer.MAX_VALUE;
+        }
+
+        if (mem[i][j] != -1) {
+            return mem[i][j]; // 记忆化
+        }
+        int res = Math.min(dfs(grid, i - 1, j, n, m, mem), dfs(grid, i, j - 1, n, m, mem)) + grid[i][j];
+        mem[i][j] = res;
+        return res;
+    }
+
+    public static int minPathSumDP(int[][] grid) {
+        int n = grid.length, m = grid[0].length;
+
+        int[][] dp = new int[n][m];
+        // 外围填充
+        int cur = 0;
+        for (int i = 0; i < m; ++i) {
+            cur += grid[0][i];
+            dp[0][i] = cur;
+        }
+
+        cur = 0;
+        for (int i = 0; i < n; ++i) {
+            cur += grid[i][0];
+            dp[i][0] = cur;
+        }
+
+        for (int i = 1; i < n; ++i) {
+            for (int j = 1; j < m; ++j) {
+                dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+            }
+        }
+        return dp[n - 1][m - 1];
+    }
+
+    public static int minPathSumDPComp(int[][] grid) {
+        // dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + grid[i][j]
+        // dp 表只用记录上一行的状态，然后过一行更新一行
+        int n = grid.length, m = grid[0].length;
+        int[] dp = new int[m];
+        int cur = 0;
+        for (int i = 0; i < m; ++i) {
+            cur += grid[0][i];
+            dp[i] = cur;
+        }
+
+        for (int i = 1; i < n; ++i) {
+            dp[0] = dp[0] + grid[i][0]; // 更新当前行的第一个元素
+            for (int j = 1; j < m; ++j) {
+                dp[j] = Math.min(dp[j - 1], dp[j]) + grid[i][j]; // 更新当前行的其他元素
+            }
+        }
+        return dp[m - 1];
+    }
+
+    /* 自己写的 0-1 背包 暴力搜索 */
+    public static int knapsackDFS(int[] wgt, int[] val, int weight) {
+        Assert.isTrue(wgt.length == val.length);
+        if (weight == 0)
+            return 0;
+
+        return dfs(wgt, val, 0, 0, weight);
+    }
+
+    /* 0-1 背包：官方暴力搜索 */
+    public static int knapsackDFSV2(int[] wgt, int[] val, int i, int c) {
+        // 若已选完所有物品或背包无剩余容量，则返回价值 0
+        if (i == 0 || c == 0) {
+            return 0;
+        }
+        // 若超过背包容量，则只能选择不放入背包
+        if (wgt[i - 1] > c) {
+            return knapsackDFSV2(wgt, val, i - 1, c);
+        }
+        // 计算不放入和放入物品 i 的最大价值
+        int no = knapsackDFSV2(wgt, val, i - 1, c);
+        int yes = knapsackDFSV2(wgt, val, i - 1, c - wgt[i - 1]) + val[i - 1];
+        // 返回两种方案中价值更大的那一个
+        return Math.max(no, yes);
+    }
+
+    public static int dfs(int[] wgt, int[] val, int start, int value, int weight) {
+        int n = wgt.length;
+        if (start == n) {
+            return value;
+        }
+
+        int max = value;
+        for (int i = start; i < n; ++i) {
+            if (weight < wgt[i])
+                continue; // 剪枝
+            max = Math.max(max, dfs(wgt, val, i + 1, value + val[i], weight - wgt[i]));
+        }
+        return max;
+    }
+
+    /* 
+        0-1 背包问题 记忆化搜索 
+        1. i 代表当前是决定第几个物品
+        2. c 代表目前还可以允许的重量
+        3. mem: 记忆
+        dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - capacity] + value)
+    */  
+    public static int knapsackDFSMem(int[] wgt, int[] val, int[][] mem, int i, int c) {
+        if (i == 0 || c == 0) 
+            return 0;
+
+        if (mem[i][c] != -1)
+            return mem[i][c];
+            
+        // 超过背包容量
+        if (wgt[i - 1] > c) 
+            return knapsackDFSMem(wgt, val, mem, i - 1, c);
+
+        // 对于第i件物品的决策有两种:
+        // 1. 不选；2. 选
+        int no = knapsackDFSMem(wgt, val, mem, i - 1, c);
+        int yes = knapsackDFSMem(wgt, val, mem, i - 1, c - wgt[i - 1]) + val[i - 1];
+        mem[i][c] = Math.max(no, yes);
+        return mem[i][c];
+    }
+
+    // 0-1 背包 动态规划 
+    public static int knapsackDP(int[] wgt, int[] val, int cap) {
+        // dp[i][c] = max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]]) + val[i - 1]
+        int n = wgt.length;
+        int[][] dp = new int[n + 1][cap + 1];
+
+        for (int i = 1; i <= n; ++i) {
+            for (int c = 1; c <= cap; ++c) {
+                if (wgt[i - 1] > c) {
+                    dp[i][c] = dp[i - 1][c];
+                } else {
+                    dp[i][c] = Math.max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]] + val[i - 1]);
+                }
+            }
+        }
+
+        return dp[n][cap];
     }
 }
