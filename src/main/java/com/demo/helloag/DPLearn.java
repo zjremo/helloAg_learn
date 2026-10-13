@@ -304,22 +304,22 @@ public class DPLearn {
         return max;
     }
 
-    /* 
-        0-1 背包问题 记忆化搜索 
-        1. i 代表当前是决定第几个物品
-        2. c 代表目前还可以允许的重量
-        3. mem: 记忆
-        dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - capacity] + value)
-    */  
+    /*
+     * 0-1 背包问题 记忆化搜索
+     * 1. i 代表当前是决定第几个物品
+     * 2. c 代表目前还可以允许的重量
+     * 3. mem: 记忆
+     * dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - capacity] + value)
+     */
     public static int knapsackDFSMem(int[] wgt, int[] val, int[][] mem, int i, int c) {
-        if (i == 0 || c == 0) 
+        if (i == 0 || c == 0)
             return 0;
 
         if (mem[i][c] != -1)
             return mem[i][c];
-            
+
         // 超过背包容量
-        if (wgt[i - 1] > c) 
+        if (wgt[i - 1] > c)
             return knapsackDFSMem(wgt, val, mem, i - 1, c);
 
         // 对于第i件物品的决策有两种:
@@ -330,7 +330,7 @@ public class DPLearn {
         return mem[i][c];
     }
 
-    // 0-1 背包 动态规划 
+    // 0-1 背包 动态规划
     public static int knapsackDP(int[] wgt, int[] val, int cap) {
         // dp[i][c] = max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]]) + val[i - 1]
         int n = wgt.length;
@@ -347,5 +347,67 @@ public class DPLearn {
         }
 
         return dp[n][cap];
+    }
+
+    // 完全背包 暴力
+    public static int unboundedKnapsackDfs(int[] wgt, int[] val, int cap) {
+        if (wgt.length == 0 || val.length == 0)
+            return 0;
+        Assert.isTrue(wgt.length == val.length);
+        return unboundedDfs(wgt, val, 0, 0, cap);
+    }
+
+    /* 完全背包：动态规划 */
+    public static int unboundedKnapsackDP(int[] wgt, int[] val, int cap) {
+        int n = wgt.length;
+        // 初始化 dp 表
+        int[][] dp = new int[n + 1][cap + 1];
+        // 状态转移
+        for (int i = 1; i <= n; i++) {
+            for (int c = 1; c <= cap; c++) {
+                if (wgt[i - 1] > c) {
+                    // 若超过背包容量，则不选物品 i
+                    dp[i][c] = dp[i - 1][c];
+                } else {
+                    // 不选和选物品 i 这两种方案的较大值
+                    dp[i][c] = Math.max(dp[i - 1][c], dp[i][c - wgt[i - 1]] + val[i - 1]);
+                }
+            }
+        }
+        return dp[n][cap];
+    }
+
+    // 完全背包 优化DP
+    public static int unboundedKnapsackDPComp(int[] wgt, int[] val, int cap) {
+        int n = wgt.length;
+        int[] dp = new int[cap + 1];
+        for (int i = 1; i <= n; ++i) {
+            for (int c = 1; c <= cap; ++c) {
+                if (wgt[i - 1] > c) {
+                    dp[c] = dp[c];
+                } else {
+                    dp[c] = Math.max(dp[c], dp[c - wgt[i - 1]] + val[i - 1]);
+                }
+            }
+        }
+        return dp[cap];
+    }
+
+    /*
+     * dfs 思想:
+     * 1. start: 当前遍历到的物品索引
+     * 2. value: 当前价值
+     * 3. cap: 当前还可以使用的capacity
+     */
+    public static int unboundedDfs(int[] wgt, int[] val, int start, int value, int cap) {
+        int n = wgt.length;
+
+        int maxValue = value; // 当前位置的value
+        for (int i = start; i < n; ++i) {
+            if (cap < wgt[i])
+                continue; // 剪枝，重量不够放
+            maxValue = Math.max(maxValue, unboundedDfs(wgt, val, start, value + val[i], cap - wgt[i]));
+        }
+        return maxValue;
     }
 }

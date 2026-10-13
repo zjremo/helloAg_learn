@@ -180,4 +180,19 @@ public class DPLearnTest {
         int result = DPLearn.knapsackDP(wgt, val, cap);
         System.out.println(result);
     }
+
+    @Test
+    public void testUnboundedKnapsackDP() {
+        int[] wgt = { 1, 2, 3, 4, 5 };
+        int[] val = { 1, 2, 3, 4, 5 };
+        int cap = 10;
+        int result = DPLearn.unboundedKnapsackDfs(wgt, val, cap);
+        System.out.println("dfs: " + result);
+        int result2 = DPLearn.unboundedKnapsackDP(wgt, val, cap);
+        System.out.println("dp: " + result2);
+        int result3 = DPLearn.unboundedKnapsackDPComp(wgt, val, cap);
+        System.out.println("dp comp: " + result3);
+        Assert.isTrue(result == result2, "result != result2");
+        Assert.isTrue(result == result3, "result != result3");
+    }
 }
