@@ -332,7 +332,7 @@ public class DPLearn {
 
     // 0-1 背包 动态规划
     public static int knapsackDP(int[] wgt, int[] val, int cap) {
-        // dp[i][c] = max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]]) + val[i - 1]
+        // dp[i][c] = max(dp[i - 1][c], dp[i - 1][c - wgt[i - 1]] + val[i - 1])
         int n = wgt.length;
         int[][] dp = new int[n + 1][cap + 1];
 
@@ -409,5 +409,123 @@ public class DPLearn {
             maxValue = Math.max(maxValue, unboundedDfs(wgt, val, start, value + val[i], cap - wgt[i]));
         }
         return maxValue;
+    }
+
+    // 零钱兑换问题 Dfs 最小硬币数
+    public static int coinChangeDfs(int[] coins, int amt) {
+        Assert.isTrue(coins.length > 0);
+        int count = coinDfs(coins, amt, 0, 0, 0);
+        // 没有找到的转为-1
+        return count == Integer.MAX_VALUE ? -1 : count;
+    }
+
+    /*
+     * amt: 目标金额
+     * start: 当前的硬币索引位置
+     * times: 当前硬币的使用枚数
+     * cur: 当前的金额
+     */
+    public static int coinDfs(int[] coins, int amt, int start, int times, int cur) {
+        if (cur == amt) // 此时已经凑数成功
+            return times;
+        int minTimes = Integer.MAX_VALUE;
+        for (int i = start; i < coins.length; ++i) {
+            if (cur + coins[i] > amt)
+                continue;
+            minTimes = Math.min(minTimes, coinDfs(coins, amt, i, times + 1, cur + coins[i])); // 剪枝: 额度超了
+        }
+        return minTimes;
+    }
+
+    // 零钱兑换 DP
+    // dp[i][j] 表示前i个硬币组成金额j的最小硬币数
+    // dp[i][a] = min(dp[i - 1][a], dp[i][a - coin] + 1)
+    public static int coinChangeDP(int[] coins, int amt) {
+        int n = coins.length;
+        // 初始化dp
+        int[][] dp = new int[n + 1][amt + 1];
+        int MAX = amt + 1; // 硬币的数目最大不会超过这个值
+
+        for (int a = 1; a <= amt; ++a) {
+            dp[0][a] = MAX;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amt; ++j) {
+                if (coins[i - 1] > j) { // 此时不能选取当前硬币
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    // 可能会出现dp[i][0] 这种情况为0，初始化默认值直接兜底
+                    dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - coins[i - 1]] + 1);
+                }
+            }
+        }
+        return dp[n][amt] == MAX ? -1 : dp[n][amt];
+    }
+
+    // 零钱兑换 优化DP 空间优化
+    public static int coinChangeDPComp(int[] coins, int amt) {
+        int n = coins.length;
+        int[] dp = new int[amt + 1]; // 只需要用一行
+        int MAX = amt + 1;
+        Arrays.fill(dp, MAX);
+        // dp[0]这种情况为0，需要覆盖
+        dp[0] = 0;
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amt; ++j) {
+                if (coins[i - 1] > j) {
+                    dp[j] = dp[j]; // 直接就是上一行同位置
+                } else {
+                    dp[j] = Math.min(dp[j], dp[j - coins[i - 1]] + 1);
+                }
+            }
+        }
+        return dp[amt] != MAX ? dp[amt] : -1;
+    }
+
+    /*
+     * 零钱兑换问题II: 凑成目标金额的硬币组合数
+     * dp[i][j] 表示前i个硬币组成金额j的组合数
+     * dp[i][j] = dp[i - 1][j] + dp[i][j - coins[i - 1]]
+     */
+    public static int coinChangeIIDP(int[] coins, int amt) {
+        int n = coins.length;
+
+        int[][] dp = new int[n + 1][amt + 1];
+        for (int i = 1; i <= n; ++i) {
+            dp[i][0] = 1;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amt; ++j) {
+                if (j < coins[i - 1])
+                    dp[i][j] = dp[i - 1][j];
+                else
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - coins[i - 1]];
+            }
+        }
+        return dp[n][amt];
+    }
+
+    /*
+     * 零钱兑换问题II: 凑成目标金额的硬币组合数
+     * 空间优化DP
+     */
+    public static int coinChangeIIDPComp(int[] coins, int amt) {
+        int n = coins.length;
+
+        int[] dp = new int[amt + 1];
+        dp[0] = 1;
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= amt; ++j) {
+                if (coins[i - 1] > j)
+                    dp[j] = dp[j];
+                else
+                    dp[j] = dp[j] + dp[j - coins[i - 1]];
+            }
+        }
+        return dp[amt];
     }
 }

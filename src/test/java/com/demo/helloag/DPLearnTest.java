@@ -138,11 +138,15 @@ public class DPLearnTest {
                 int result2 = DPLearn.knapsackDFSV2(wgt, val, n, weight);
                 if (result1 != result2) {
                     failCount++;
-                    System.out.println(String.format("Test failed: n = %d, weight = %d, val = %s, wgt = %s, result1 = %d, result2 = %d", n, weight, Arrays.toString(val), Arrays.toString(wgt), result1, result2));
-                    failSb.append(String.format("weight = %d, val = %s, wgt = %s, result1 = %d, result2 = %d\n", weight, Arrays.toString(val), Arrays.toString(wgt), result1, result2));
+                    System.out.println(String.format(
+                            "Test failed: n = %d, weight = %d, val = %s, wgt = %s, result1 = %d, result2 = %d", n,
+                            weight, Arrays.toString(val), Arrays.toString(wgt), result1, result2));
+                    failSb.append(String.format("weight = %d, val = %s, wgt = %s, result1 = %d, result2 = %d\n", weight,
+                            Arrays.toString(val), Arrays.toString(wgt), result1, result2));
                 } else {
                     passCount++;
-                    sb.append(String.format("weight = %d, val = %s, wgt = %s\n", weight, Arrays.toString(val), Arrays.toString(wgt)));
+                    sb.append(String.format("weight = %d, val = %s, wgt = %s\n", weight, Arrays.toString(val),
+                            Arrays.toString(wgt)));
                 }
             }
             System.out.println("Test passed: " + passCount + " times");
@@ -195,4 +199,88 @@ public class DPLearnTest {
         Assert.isTrue(result == result2, "result != result2");
         Assert.isTrue(result == result3, "result != result3");
     }
+
+    @Test
+    public void testCoinChangeDFS() {
+        // 对拍count次
+        int count = 20;
+        String filePath = "./src/test/document/coinChange_data.txt";
+        StringBuilder sb = new StringBuilder();
+        StringBuilder failSb = new StringBuilder();
+        int failCount = 0;
+        int passCount = 0;
+
+        try (FileOutputStream outputStream = new FileOutputStream(filePath)) {
+            FileChannel fileChannel = outputStream.getChannel();
+            /*
+             * 需要构造三个东西:
+             * 1. the length of coins: len
+             * 2. amount: 目标金额
+             * 3. coins: must be positive number
+             */
+            sb.append("Test all cases are: \n");
+            failSb.append("Test cases of failed are: \n");
+            for (int i = 0; i < count; ++i) {
+                System.out.println("Test case " + (i + 1) + " is running...");
+                // 用例构造
+                int len = ThreadLocalRandom.current().nextInt(1, 20);
+                int amount = ThreadLocalRandom.current().nextInt(1, 30);
+                int[] coins = new int[len];
+                for (int j = 0; j < len; ++j) 
+                    coins[j] = ThreadLocalRandom.current().nextInt(1, 30);
+                
+                sb.append("coins: ").append(Arrays.toString(coins)).append(", amount: ").append(amount).append("\n");
+                int resDfs = DPLearn.coinChangeDfs(coins, amount);
+                int resDP = DPLearn.coinChangeDP(coins, amount);
+                if (resDfs != resDP) {
+                    ++failCount;
+                    failSb.append("coins: ")
+                    .append(Arrays.toString(coins))
+                    .append(", amount: ")
+                    .append(amount)
+                    .append(", result of dfs: ")
+                    .append(resDfs)
+                    .append(", result of dp: ")
+                    .append(resDP)
+                    .append("\n");
+                } else {
+                    ++passCount;
+                }
+            }
+            System.out.println("Test passed count: " + passCount);
+            System.out.println("Test failed count: " + failCount);
+
+            String ws = sb + "\n\n" + failSb;
+            fileChannel.write(ByteBuffer.wrap(ws.getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace(System.out);
+        }
+    }
+
+    @Test
+    public void testCoinChangeDP() {
+        int[] coins = { 1, 2, 5 };
+        int amount = 11;
+        int result = DPLearn.coinChangeDP(coins, amount);
+        System.out.println(result);
+    }
+
+    @Test
+    public void testCoinChangeDPComp() {
+        int[] coins = { 1, 2, 5 };
+        int amount = 11;
+        int result = DPLearn.coinChangeDPComp(coins, amount);
+        System.out.println(result);
+    }
+
+    @Test
+    public void testCoinChangeIIDP() {
+        int[] coins = { 1, 2, 5 };
+        int amount = 11;
+        int result = DPLearn.coinChangeIIDP(coins, amount);
+        int result2 = DPLearn.coinChangeIIDPComp(coins, amount);
+        System.out.println("dp: " + result + ", dp comp: " + result2);
+        Assert.isTrue(result == result2, "result != result2");
+    }
+    
 }
