@@ -3,14 +3,17 @@ package com.demo.helloag;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@Data 
-@AllArgsConstructor 
+@Data
 class Pair<K, V> {
     private K key;
     private V value;
+
+    public Pair(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
 }
 
 public class HashMapOpenAddressing{
