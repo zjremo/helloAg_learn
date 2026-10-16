@@ -282,5 +282,46 @@ public class DPLearnTest {
         System.out.println("dp: " + result + ", dp comp: " + result2);
         Assert.isTrue(result == result2, "result != result2");
     }
-    
+
+    @Test
+    public void testEditDistanceDPAndComp() { // 简单对拍，DP and DPComp
+        StringBuilder passSb = new StringBuilder(), failSb = new StringBuilder();
+
+        int count = 100, passCount = 0, failCount = 0;
+        
+        /*
+        * 需要构造三个东西:
+         * 1. s的长度: slen
+         * 2. t的长度: tlen
+         * 3. s: 源字符串 生成slen次char字符
+         * 4. t: 目标字符串 生成tlen次char字符
+         */
+        for (int i = 0; i < count; ++i) {
+            int slen = ThreadLocalRandom.current().nextInt(1, 10);
+            int tlen = ThreadLocalRandom.current().nextInt(1, 10);
+            char[] s = new char[slen];
+            char[] t = new char[tlen];
+            for (int j = 0; j < slen; ++j) {
+                s[j] = (char) (ThreadLocalRandom.current().nextInt(0, 26) + 'a');
+            }
+            for (int j = 0; j < tlen; ++j) {
+                t[j] = (char) (ThreadLocalRandom.current().nextInt(0, 26) + 'a');
+            }
+            String sStr = new String(s);
+            String tStr = new String(t);
+            int resultDP = DPLearn.editDistanceDP(sStr, tStr);
+            int resultDPComp = DPLearn.editDistanceDPComp(sStr, tStr);
+            if (resultDP != resultDPComp) {
+                ++failCount;
+                String tmp = "s: " + sStr + ", t: " + tStr + ", resultDP: " + resultDP + ", resultDPComp: " + resultDPComp;
+                failSb.append(tmp).append("\n");
+            } else {
+                ++passCount;
+                String tmp = "s: " + sStr + ", t: " + tStr + ", result: " + resultDP;
+                passSb.append(tmp).append("\n");
+            }
+        }
+        System.out.format("passCount: %d, details are: \n%s\n", passCount, passSb);
+        System.out.format("failCount: %d, details are: \n%s\n", failCount, failSb);
+    }
 }

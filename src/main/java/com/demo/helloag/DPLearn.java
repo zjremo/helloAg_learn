@@ -528,4 +528,63 @@ public class DPLearn {
         }
         return dp[amt];
     }
+
+    /*
+     * 编辑距离问题 DP
+     * s 转换为 t 的最小操作数
+     * dp[i][j]: s[0:i] 转换为 t[0:j] 的最小操作数
+     * dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (s[i]
+     * == t[j] ? 0 : 1))
+     */
+    public static int editDistanceDP(String s, String t) {
+        int m = s.length(), n = t.length();
+        int[][] dp = new int[m + 1][n + 1];
+        for (int i = 1; i <= m; ++i) {
+            dp[i][0] = i; // 全部删除
+        }
+
+        for (int j = 1; j <= n; ++j) {
+            dp[0][j] = j; // 全部插入
+        }
+
+        for (int i = 1; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                char sc = s.charAt(i - 1), tc = t.charAt(j - 1);
+                if (sc == tc) {
+                    dp[i][j] = dp[i - 1][j - 1]; // 当前无需继续操作
+                } else { // 三种操作取最小步数
+                    dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;
+                }
+            }
+        }
+        return dp[m][n];
+    }
+
+    /*
+     * 编辑距离问题 DP 空间优化
+     */
+    public static int editDistanceDPComp(String s, String t) {
+        int n = t.length(), m = s.length();
+        int[] dp = new int[n + 1];
+        
+        for (int i = 1; i <= n; ++i) {
+            dp[i] = i;
+        }
+
+        for (int i = 1; i <= m; ++i) {
+            int lastLeft = dp[0]; // 上一轮的dp[i][0] dp[i - 1][j - 1] 使用
+            dp[0] = i; // 本轮的需要填充，dp[i][j - 1]
+            for (int j = 1; j <= n; ++j) {
+                int temp = dp[j]; // 保存当前的dp[j]，用于下一轮的dp[j - 1]
+                char sc = s.charAt(i - 1), tc = t.charAt(j - 1);
+                if (sc == tc) {
+                    dp[j] = lastLeft;
+                } else { // 当前字符不同，必须要进行一次操作
+                    dp[j] = Math.min(dp[j], Math.min(dp[j - 1], lastLeft)) + 1;
+                }
+                lastLeft = temp;
+            }
+        }
+        return dp[n];
+    }
 }
