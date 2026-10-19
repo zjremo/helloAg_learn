@@ -7,7 +7,7 @@ import cn.hutool.core.lang.Assert;
 public class GreedyTest {
     @Test
     public void testCoinChangeGreedy() {
-        int[] coins = {1, 5, 10, 20, 50, 100};
+        int[] coins = { 1, 5, 10, 20, 50, 100 };
         int amt = 131;
         int result = GreedyLearn.coinChangeGreedy(coins, amt);
         System.out.println(result);
@@ -16,7 +16,7 @@ public class GreedyTest {
 
     @Test
     public void testCoinChangeDfs() {
-        int[] coins = {1, 5, 10, 20, 50, 100};
+        int[] coins = { 1, 5, 10, 20, 50, 100 };
         int amt = 131;
         int result = GreedyLearn.coinChangeDfs(coins, amt);
         System.out.println(result);
@@ -25,10 +25,19 @@ public class GreedyTest {
 
     @Test
     public void testCoinChangeMemSearch() {
-        int[] coins = {1, 5, 10, 20, 50, 100};
+        int[] coins = { 1, 5, 10, 20, 50, 100 };
         int amt = 131;
         int result = GreedyLearn.coinChangeMemSearch(coins, amt);
         System.out.println(result);
         Assert.isTrue(result == 4);
+    }
+
+    @Test
+    public void testMaxProductCutting() {
+        int n = 10; // 3 * 3 + 1
+        int result = GreedyLearn.maxProductCutting(n);
+        System.out.println(result);
+        // 3 * 3 * (2 * 2) = 36
+        Assert.isTrue(result == 36);
     }
 }

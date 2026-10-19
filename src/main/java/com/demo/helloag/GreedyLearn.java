@@ -72,7 +72,7 @@ public class GreedyLearn {
 
         int[][] mem = new int[n][amt + 1];
 
-        for (int[] row: mem) {
+        for (int[] row : mem) {
             Arrays.fill(row, -2); // -2 代表没有进行计算
         }
         int steps = coinChangeMemSearch(coins_copy, 0, amt, mem);
@@ -87,7 +87,7 @@ public class GreedyLearn {
     public static int coinChangeMemSearch(int[] coins, int start, int amt, int[][] mem) {
         if (amt == 0)
             return 0;
-        
+
         if (mem[start][amt] != -2)
             return mem[start][amt];
 
@@ -103,5 +103,26 @@ public class GreedyLearn {
         // 将结果存储到minSteps中
         mem[start][amt] = minSteps;
         return minSteps;
+    }
+
+    /* 最大切分乘积：贪心 */
+    public static int maxProductCutting(int n) {
+        // 当 n <= 3 时，必须切分出一个 1
+        if (n <= 3) {
+            return 1 * (n - 1);
+        }
+        // 贪心地切分出 3 ，a 为 3 的个数，b 为余数
+        int a = n / 3;
+        int b = n % 3;
+        if (b == 1) {
+            // 当余数为 1 时，将一对 1 * 3 转化为 2 * 2
+            return (int) Math.pow(3, a - 1) * 2 * 2;
+        }
+        if (b == 2) {
+            // 当余数为 2 时，不做处理
+            return (int) Math.pow(3, a) * 2;
+        }
+        // 当余数为 0 时，不做处理
+        return (int) Math.pow(3, a);
     }
 }
